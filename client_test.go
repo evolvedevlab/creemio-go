@@ -17,7 +17,6 @@ func TestNewClient_Defaults(t *testing.T) {
 	a.NotNil(c)
 	a.Equal(BaseAPIURL, c.baseURL)
 	a.NotNil(c.httpClient)
-	a.Equal(DefaultClientTimeout, c.httpClient.Timeout)
 
 	// Ensure services are initialized
 	a.NotNil(c.Checkouts)

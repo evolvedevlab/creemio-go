@@ -1,3 +1,7 @@
+include .env
+
 test:
-	@go test -v ./...
+	@API_KEY=$(API_KEY) go test -v ./...
 	
+echo:
+	echo API_KEY=$(API_KEY)

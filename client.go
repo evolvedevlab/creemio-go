@@ -2,13 +2,11 @@ package creemio
 
 import (
 	"net/http"
-	"time"
 )
 
 const (
-	BaseAPIURL           = "https://api.creem.io"
-	APIVersion           = "v1"
-	DefaultClientTimeout = 10 * time.Second
+	BaseAPIURL = "https://api.creem.io"
+	APIVersion = "v1"
 )
 
 type Client struct {
@@ -23,10 +21,8 @@ type Option func(*Client)
 
 func New(opts ...Option) *Client {
 	c := &Client{
-		baseURL: BaseAPIURL,
-		httpClient: &http.Client{
-			Timeout: DefaultClientTimeout,
-		},
+		baseURL:    BaseAPIURL,
+		httpClient: http.DefaultClient,
 	}
 
 	for _, opt := range opts {
