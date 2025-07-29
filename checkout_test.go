@@ -107,7 +107,7 @@ func TestCheckouts_CreateWithMissingProductID(t *testing.T) {
 	resp, res, err := c.Checkouts.Create(context.Background(), CheckoutCreateRequest{})
 
 	a.Error(err)
-	a.EqualError(err, ErrRequiredFieldProductID.Error())
+	a.EqualError(err, errRequiredFieldProductID.Error())
 	a.Nil(resp)
 	a.Nil(res)
 }

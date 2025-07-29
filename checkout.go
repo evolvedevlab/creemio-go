@@ -137,7 +137,7 @@ func (c *CheckoutService) Create(ctx context.Context, data CheckoutCreateRequest
 	targetUrl := makeUrl(c.client.baseURL, "/checkouts")
 
 	if len(data.ProductID) == 0 {
-		return nil, nil, ErrRequiredFieldProductID
+		return nil, nil, errRequiredFieldProductID
 	}
 
 	payload, err := json.Marshal(data)

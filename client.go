@@ -15,6 +15,7 @@ type Client struct {
 	apiKey     string
 
 	Checkouts *CheckoutService
+	Customers *CustomerService
 }
 
 type Option func(*Client)
@@ -30,6 +31,7 @@ func New(opts ...Option) *Client {
 	}
 
 	c.Checkouts = &CheckoutService{client: c}
+	c.Customers = &CustomerService{client: c}
 
 	return c
 }
