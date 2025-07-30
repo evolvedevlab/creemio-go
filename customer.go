@@ -31,18 +31,18 @@ type CustomerService struct {
 	client *Client
 }
 
-func (c *CustomerService) Get(ctx context.Context, query *CustomerRequestQuery) (*Customer, *Response, error) {
+func (s *CustomerService) Get(ctx context.Context, query *CustomerRequestQuery) (*Customer, *Response, error) {
 	if len(query.ID) == 0 && len(query.Email) == 0 {
 		return nil, nil, errCustomerNoQuery
 	}
 
-	targetUrl := makeUrl(c.client.baseURL, "/customers")
+	targetUrl := makeUrl(s.client.baseURL, "/customers")
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetUrl, nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	req.Header.Set("x-api-key", c.client.apiKey)
+	req.Header.Set("x-api-key", s.client.apiKey)
 
 	q := req.URL.Query()
 	if len(query.ID) > 0 {
@@ -52,7 +52,7 @@ func (c *CustomerService) Get(ctx context.Context, query *CustomerRequestQuery) 
 	}
 	req.URL.RawQuery = q.Encode()
 
-	res, err := c.client.httpClient.Do(req)
+	res, err := s.client.httpClient.Do(req)
 	if err != nil {
 		return nil, newResponse(res), err
 	}

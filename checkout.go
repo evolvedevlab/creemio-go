@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-type CheckoutService struct {
-	client *Client
-}
-
 type CheckoutCreateRequest struct {
 	RequestID    string                `json:"request_id"`
 	ProductID    string                `json:"product_id"`
@@ -110,20 +106,24 @@ type LicenseInstance struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func (c *CheckoutService) Get(ctx context.Context, id string) (*CheckoutResponse, *Response, error) {
-	targetUrl := makeUrl(c.client.baseURL, "/checkouts")
+type CheckoutService struct {
+	client *Client
+}
+
+func (s *CheckoutService) Get(ctx context.Context, id string) (*CheckoutResponse, *Response, error) {
+	targetUrl := makeUrl(s.client.baseURL, "/checkouts")
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetUrl, nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	req.Header.Set("x-api-key", c.client.apiKey)
+	req.Header.Set("x-api-key", s.client.apiKey)
 
 	q := req.URL.Query()
 	q.Set("checkout_id", id)
 	req.URL.RawQuery = q.Encode()
 
-	res, err := c.client.httpClient.Do(req)
+	res, err := s.client.httpClient.Do(req)
 	if err != nil {
 		return nil, newResponse(res), err
 	}
@@ -137,8 +137,8 @@ func (c *CheckoutService) Get(ctx context.Context, id string) (*CheckoutResponse
 	return &checkout, newResponse(res), nil
 }
 
-func (c *CheckoutService) Create(ctx context.Context, data *CheckoutCreateRequest) (*CheckoutResponse, *Response, error) {
-	targetUrl := makeUrl(c.client.baseURL, "/checkouts")
+func (s *CheckoutService) Create(ctx context.Context, data *CheckoutCreateRequest) (*CheckoutResponse, *Response, error) {
+	targetUrl := makeUrl(s.client.baseURL, "/checkouts")
 
 	if len(data.ProductID) == 0 {
 		return nil, nil, errRequiredFieldProductID
@@ -153,9 +153,9 @@ func (c *CheckoutService) Create(ctx context.Context, data *CheckoutCreateReques
 	if err != nil {
 		return nil, nil, err
 	}
-	req.Header.Set("x-api-key", c.client.apiKey)
+	req.Header.Set("x-api-key", s.client.apiKey)
 
-	res, err := c.client.httpClient.Do(req)
+	res, err := s.client.httpClient.Do(req)
 	if err != nil {
 		return nil, newResponse(res), err
 	}
