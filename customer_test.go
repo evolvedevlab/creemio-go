@@ -3,8 +3,10 @@ package creemio
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/evolvedevlab/creemio-go/mock"
@@ -24,11 +26,21 @@ func TestCustomers_Get(t *testing.T) {
 	)
 
 	expectedEmail := "user@example.com"
-	resp, res, err := c.Customers.Get(context.Background(), CustomerRequestQuery{
+	// For comparing the url request url with search params
+	url, err := url.Parse(fmt.Sprintf("/%s/customers", APIVersion))
+	if err != nil {
+		panic(err)
+	}
+	q := url.Query()
+	q.Set("email", expectedEmail)
+	url.RawQuery = q.Encode()
+
+	resp, res, err := c.Customers.Get(context.Background(), &CustomerRequestQuery{
 		Email: expectedEmail,
 	})
 
 	a.NoError(err)
+	a.Equal(url.RequestURI(), res.RequestURL.RequestURI())
 	a.Equal(http.StatusOK, res.Status)
 	a.NotNil(resp)
 	a.Equal(expectedEmail, resp.Email)
@@ -52,7 +64,7 @@ func TestCustomers_GetWithMissingRequiredField(t *testing.T) {
 		WithAPIKey(""),
 	)
 
-	resp, res, err := c.Customers.Get(context.Background(), CustomerRequestQuery{})
+	resp, res, err := c.Customers.Get(context.Background(), &CustomerRequestQuery{})
 
 	a.Error(err)
 	a.Nil(resp)
@@ -74,7 +86,7 @@ func TestCustomers_GetWithError(t *testing.T) {
 		WithAPIKey(""),
 	)
 
-	resp, res, err := c.Customers.Get(context.Background(), CustomerRequestQuery{
+	resp, res, err := c.Customers.Get(context.Background(), &CustomerRequestQuery{
 		Email: "user@example.com",
 	})
 

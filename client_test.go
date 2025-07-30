@@ -15,11 +15,13 @@ func TestNewClient_Defaults(t *testing.T) {
 	c := New()
 
 	a.NotNil(c)
-	a.Equal(BaseAPIURL, c.baseURL)
+	a.Equal(BaseAPIUrl, c.baseURL)
 	a.NotNil(c.httpClient)
 
 	// Ensure services are initialized
 	a.NotNil(c.Checkouts)
+	a.NotNil(c.Customers)
+	a.NotNil(c.Subscriptions)
 }
 
 func TestNewClient_WithAPIKey(t *testing.T) {

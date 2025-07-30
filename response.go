@@ -1,12 +1,20 @@
 package creemio
 
-import "net/http"
+import (
+	"net/http"
+	"net/url"
+)
 
 type Response struct {
-	Status  int
-	Headers http.Header
+	RequestURL *url.URL
+	Status     int
+	Headers    http.Header
 }
 
 func newResponse(res *http.Response) *Response {
-	return &Response{Status: res.StatusCode, Headers: res.Header}
+	return &Response{
+		RequestURL: res.Request.URL,
+		Status:     res.StatusCode,
+		Headers:    res.Header,
+	}
 }

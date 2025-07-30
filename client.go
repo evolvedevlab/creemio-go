@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	BaseAPIURL = "https://api.creem.io"
-	APIVersion = "v1"
+	BaseAPIUrl     = "https://api.creem.io"
+	BaseTestAPIUrl = "https://test-api.creem.io"
+	APIVersion     = "v1"
 )
 
 type Client struct {
@@ -14,15 +15,16 @@ type Client struct {
 	baseURL    string
 	apiKey     string
 
-	Checkouts *CheckoutService
-	Customers *CustomerService
+	Checkouts     *CheckoutService
+	Customers     *CustomerService
+	Subscriptions *SubscriptionService
 }
 
 type Option func(*Client)
 
 func New(opts ...Option) *Client {
 	c := &Client{
-		baseURL:    BaseAPIURL,
+		baseURL:    BaseAPIUrl,
 		httpClient: http.DefaultClient,
 	}
 
@@ -32,6 +34,7 @@ func New(opts ...Option) *Client {
 
 	c.Checkouts = &CheckoutService{client: c}
 	c.Customers = &CustomerService{client: c}
+	c.Subscriptions = &SubscriptionService{client: c}
 
 	return c
 }
