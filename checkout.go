@@ -111,13 +111,17 @@ type LicenseInstance struct {
 }
 
 func (c *CheckoutService) Get(ctx context.Context, id string) (*CheckoutResponse, *Response, error) {
-	targetUrl := makeUrl(c.client.baseURL, "/checkouts", id)
+	targetUrl := makeUrl(c.client.baseURL, "/checkouts")
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetUrl, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 	req.Header.Set("x-api-key", c.client.apiKey)
+
+	q := req.URL.Query()
+	q.Set("checkout_id", id)
+	req.URL.RawQuery = q.Encode()
 
 	res, err := c.client.httpClient.Do(req)
 	if err != nil {
@@ -133,7 +137,7 @@ func (c *CheckoutService) Get(ctx context.Context, id string) (*CheckoutResponse
 	return &checkout, newResponse(res), nil
 }
 
-func (c *CheckoutService) Create(ctx context.Context, data CheckoutCreateRequest) (*CheckoutResponse, *Response, error) {
+func (c *CheckoutService) Create(ctx context.Context, data *CheckoutCreateRequest) (*CheckoutResponse, *Response, error) {
 	targetUrl := makeUrl(c.client.baseURL, "/checkouts")
 
 	if len(data.ProductID) == 0 {

@@ -3,8 +3,10 @@ package creemio
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/evolvedevlab/creemio-go/mock"
@@ -31,7 +33,7 @@ func TestCheckouts_Create(t *testing.T) {
 		expectedSuccessUrl = "https://example.com/return"
 	)
 
-	req := CheckoutCreateRequest{
+	reqData := &CheckoutCreateRequest{
 		ProductID:    expectedProductID,
 		RequestID:    expectedReqID,
 		Units:        expectedUnit,
@@ -58,7 +60,7 @@ func TestCheckouts_Create(t *testing.T) {
 		},
 	}
 
-	resp, res, err := c.Checkouts.Create(context.Background(), req)
+	resp, res, err := c.Checkouts.Create(context.Background(), reqData)
 
 	a.NoError(err)
 	a.NotNil(resp)
@@ -82,7 +84,7 @@ func TestCheckouts_CreateWithError(t *testing.T) {
 		WithAPIKey(""),
 	)
 
-	resp, res, err := c.Checkouts.Create(context.Background(), CheckoutCreateRequest{
+	resp, res, err := c.Checkouts.Create(context.Background(), &CheckoutCreateRequest{
 		ProductID: "1",
 	})
 
@@ -104,7 +106,7 @@ func TestCheckouts_CreateWithMissingProductID(t *testing.T) {
 		WithAPIKey(""),
 	)
 
-	resp, res, err := c.Checkouts.Create(context.Background(), CheckoutCreateRequest{})
+	resp, res, err := c.Checkouts.Create(context.Background(), &CheckoutCreateRequest{})
 
 	a.Error(err)
 	a.EqualError(err, errRequiredFieldProductID.Error())
@@ -125,9 +127,19 @@ func TestCheckouts_Get(t *testing.T) {
 	)
 
 	checkoutID := "1"
+	url, err := url.Parse(fmt.Sprintf("/%s/checkouts", APIVersion))
+	if err != nil {
+		panic(err)
+	}
+
+	q := url.Query()
+	q.Set("checkout_id", checkoutID)
+	url.RawQuery = q.Encode()
+
 	resp, res, err := c.Checkouts.Get(context.Background(), checkoutID)
 
 	a.NoError(err)
+	a.Equal(url.RequestURI(), res.RequestURL.RequestURI())
 	a.Equal(http.StatusOK, res.Status)
 	a.NotNil(resp)
 	a.Equal(checkoutID, resp.ID)
