@@ -26,13 +26,13 @@ type CheckoutTextSpec struct {
 	MinLength int `json:"min_length"`
 }
 
-type CheckoutResponse struct {
+type Checkout struct {
 	ID           string                `json:"id"`
 	Mode         string                `json:"mode"`
 	Object       string                `json:"object"`
 	Status       string                `json:"status"`
 	RequestID    string                `json:"request_id"`
-	Product      ProductOrID           `json:"product"`
+	Product      *Product              `json:"product"`
 	Units        int                   `json:"units"`
 	Order        *CheckoutOrder        `json:"order"`
 	Subscription string                `json:"subscription"`
@@ -42,26 +42,6 @@ type CheckoutResponse struct {
 	SuccessURL   string                `json:"success_url"`
 	Feature      []CheckoutFeature     `json:"feature"`
 	Metadata     map[string]any        `json:"metadata"`
-}
-
-type ProductOrID struct {
-	ID   string
-	Data *Product
-}
-
-func (p *ProductOrID) UnmarshalJSON(data []byte) error {
-	// If it's a string, treat it as product ID
-	if data[0] == '"' {
-		return json.Unmarshal(data, &p.ID)
-	}
-
-	// Otherwise, try to parse it as a Product object
-	var prod Product
-	if err := json.Unmarshal(data, &prod); err != nil {
-		return err
-	}
-	p.Data = &prod
-	return nil
 }
 
 type CheckoutOrder struct {
@@ -131,7 +111,7 @@ type CheckoutService struct {
 	client *Client
 }
 
-func (s *CheckoutService) Get(ctx context.Context, id string) (*CheckoutResponse, *Response, error) {
+func (s *CheckoutService) Get(ctx context.Context, id string) (*Checkout, *Response, error) {
 	targetUrl := makeUrl(s.client.baseURL, "/checkouts")
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetUrl, nil)
@@ -153,7 +133,7 @@ func (s *CheckoutService) Get(ctx context.Context, id string) (*CheckoutResponse
 	}
 	defer res.Body.Close()
 
-	var checkout CheckoutResponse
+	var checkout Checkout
 	if err := json.NewDecoder(res.Body).Decode(&checkout); err != nil {
 		return nil, newResponse(res), err
 	}
@@ -161,7 +141,7 @@ func (s *CheckoutService) Get(ctx context.Context, id string) (*CheckoutResponse
 	return &checkout, newResponse(res), nil
 }
 
-func (s *CheckoutService) Create(ctx context.Context, data *CheckoutCreateRequest) (*CheckoutResponse, *Response, error) {
+func (s *CheckoutService) Create(ctx context.Context, data *CheckoutCreateRequest) (*Checkout, *Response, error) {
 	targetUrl := makeUrl(s.client.baseURL, "/checkouts")
 
 	if len(data.ProductID) == 0 {
@@ -189,7 +169,7 @@ func (s *CheckoutService) Create(ctx context.Context, data *CheckoutCreateReques
 	}
 	defer res.Body.Close()
 
-	var checkout CheckoutResponse
+	var checkout Checkout
 	if err := json.NewDecoder(res.Body).Decode(&checkout); err != nil {
 		return nil, newResponse(res), err
 	}

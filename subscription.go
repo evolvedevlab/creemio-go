@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 )
@@ -34,6 +33,22 @@ type Product struct {
 	DefaultSuccessURL string    `json:"default_success_url"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`
+}
+
+func (p *Product) UnmarshalJSON(data []byte) error {
+	// If it's a string, treat it as product ID
+	if len(data) > 0 && data[0] == '"' {
+		return json.Unmarshal(data, &p.ID)
+	}
+
+	// Otherwise, try to parse it as a full Product object
+	type alias Product // avoid recursion
+	var tmp alias
+	if err := json.Unmarshal(data, &tmp); err != nil {
+		return err
+	}
+	*p = Product(tmp)
+	return nil
 }
 
 type SubscriptionItem struct {
@@ -158,7 +173,6 @@ func (s *SubscriptionService) Update(ctx context.Context, data *UpdateSubscripti
 		return nil, nil, err
 	}
 
-	fmt.Println("debug: ", string(payload), targetUrl)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetUrl, bytes.NewReader(payload))
 	if err != nil {
 		return nil, nil, err

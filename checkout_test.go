@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -65,7 +66,7 @@ func TestCheckouts_Create(t *testing.T) {
 	a.NoError(err)
 	a.NotNil(resp)
 	a.Equal(http.StatusCreated, res.Status)
-	a.Equal(expectedProductID, resp.Product)
+	a.Equal(expectedProductID, resp.Product.ID)
 	a.Equal(expectedReqID, resp.RequestID)
 	a.Equal(expectedSuccessUrl, resp.SuccessURL)
 }
@@ -144,11 +145,15 @@ func TestCheckouts_Get(t *testing.T) {
 	a.NotNil(resp)
 	a.Equal(checkoutID, resp.ID)
 
-	// Marshalling again for comparing expected json data with the received json data
-	rawJson, err := json.Marshal(resp)
+	// Have to do it like this, we cannot compare json here as some field(s)
+	// can either be string or object in json.
+	var expectedCheckout Checkout
+	if err := json.Unmarshal(mock.GetCheckoutResponse(), &expectedCheckout); err != nil {
+		log.Fatal(err)
+	}
 
 	a.NoError(err)
-	a.JSONEq(string(mock.GetCheckoutResponse()), string(rawJson))
+	a.Equal(expectedCheckout, *resp)
 }
 
 func TestCheckouts_GetWithError(t *testing.T) {
