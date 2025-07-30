@@ -15,7 +15,7 @@ func TestNewClient_Defaults(t *testing.T) {
 	c := New()
 
 	a.NotNil(c)
-	a.Equal(BaseAPIUrl, c.baseURL)
+	a.Equal(BaseAPIURL, c.baseURL)
 	a.NotNil(c.httpClient)
 
 	// Ensure services are initialized

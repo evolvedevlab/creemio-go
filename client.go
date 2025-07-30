@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	BaseAPIUrl     = "https://api.creem.io"
-	BaseTestAPIUrl = "https://test-api.creem.io"
+	BaseAPIURL     = "https://api.creem.io"
+	BaseTestAPIURL = "https://test-api.creem.io"
 	APIVersion     = "v1"
 )
 
@@ -24,7 +24,7 @@ type Option func(*Client)
 
 func New(opts ...Option) *Client {
 	c := &Client{
-		baseURL:    BaseAPIUrl,
+		baseURL:    BaseAPIURL,
 		httpClient: http.DefaultClient,
 	}
 
