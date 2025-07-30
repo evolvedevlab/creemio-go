@@ -63,6 +63,9 @@ type WebHookCheckout struct {
     // ...
 }
 func WebHookHandler(w http.ResponseWriter, r *http.Request) {
+    sig := r.Header.Get("creem-signature")
+    // Authenticate the webhook signature
+
     body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Fatal(err)
