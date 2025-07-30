@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -66,6 +67,16 @@ type Transaction struct {
 	CreatedAt      int    `json:"created_at"`
 }
 
+type SubscriptionStatus string
+
+const (
+	SubscriptionStatusActive   SubscriptionStatus = "active"
+	SubscriptionStatusCanceled SubscriptionStatus = "canceled"
+	SubscriptionStatusUnpaid   SubscriptionStatus = "unpaid"
+	SubscriptionStatusPaused   SubscriptionStatus = "paused"
+	SubscriptionStatusTrialing SubscriptionStatus = "trialing"
+)
+
 type Subscription struct {
 	ID                     string             `json:"id"`
 	Mode                   string             `json:"mode"`
@@ -74,7 +85,7 @@ type Subscription struct {
 	Customer               Customer           `json:"customer"`
 	Items                  []SubscriptionItem `json:"items"`
 	CollectionMethod       string             `json:"collection_method"`
-	Status                 string             `json:"status"`
+	Status                 SubscriptionStatus `json:"status"`
 	LastTransactionID      string             `json:"last_transaction_id"`
 	LastTransaction        Transaction        `json:"last_transaction"`
 	LastTransactionDate    time.Time          `json:"last_transaction_date"`
@@ -95,10 +106,10 @@ const (
 )
 
 type UpdateSubscriptionRequest struct {
-	SubscriptionID string             `json:"subscription_id"`
-	Items          []SubscriptionItem `json:"items"`
+	SubscriptionID string             `json:"-"`
+	Items          []SubscriptionItem `json:"items,omitempty"`
 	// proration-charge-immediately | proration-charge | proration-none
-	UpdateBehavior SubscriptionUpdateBehavior `json:"update_behavior"`
+	UpdateBehavior SubscriptionUpdateBehavior `json:"update_behavior,omitempty"`
 }
 
 type SubscriptionService struct {
@@ -122,6 +133,9 @@ func (s *SubscriptionService) Get(ctx context.Context, id string) (*Subscription
 	if err != nil {
 		return nil, newResponse(res), err
 	}
+	if res.StatusCode >= 400 {
+		return nil, newResponse(res), newAPIError(res.Body)
+	}
 	defer res.Body.Close()
 
 	var sub Subscription
@@ -133,6 +147,10 @@ func (s *SubscriptionService) Get(ctx context.Context, id string) (*Subscription
 }
 
 func (s *SubscriptionService) Update(ctx context.Context, data *UpdateSubscriptionRequest) (*Subscription, *Response, error) {
+	if len(data.SubscriptionID) == 0 {
+		return nil, nil, errRequiredFieldSubscriptionID
+	}
+
 	targetUrl := makeUrl(s.client.baseURL, "/subscriptions", data.SubscriptionID)
 
 	payload, err := json.Marshal(data)
@@ -140,15 +158,20 @@ func (s *SubscriptionService) Update(ctx context.Context, data *UpdateSubscripti
 		return nil, nil, err
 	}
 
+	fmt.Println("debug: ", string(payload), targetUrl)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetUrl, bytes.NewReader(payload))
 	if err != nil {
 		return nil, nil, err
 	}
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("x-api-key", s.client.apiKey)
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
 		return nil, newResponse(res), err
+	}
+	if res.StatusCode >= 400 {
+		return nil, newResponse(res), newAPIError(res.Body)
 	}
 	defer res.Body.Close()
 
@@ -167,11 +190,15 @@ func (s *SubscriptionService) Cancel(ctx context.Context, id string) (*Subscript
 	if err != nil {
 		return nil, nil, err
 	}
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("x-api-key", s.client.apiKey)
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
 		return nil, newResponse(res), err
+	}
+	if res.StatusCode >= 400 {
+		return nil, newResponse(res), newAPIError(res.Body)
 	}
 	defer res.Body.Close()
 

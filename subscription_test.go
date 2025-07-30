@@ -106,6 +106,26 @@ func TestSubscriptions_Update(t *testing.T) {
 
 }
 
+func TestSubscriptions_UpdateWithMissingSubscriptionID(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(mock.HandlePostUpdateSubscription))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	resp, res, err := c.Subscriptions.Update(context.Background(), &UpdateSubscriptionRequest{})
+
+	a.Error(err)
+	a.EqualError(err, errRequiredFieldSubscriptionID.Error())
+	a.Nil(resp)
+	a.Nil(res)
+}
+
 func TestSubscriptions_UpdateWithError(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
@@ -120,7 +140,9 @@ func TestSubscriptions_UpdateWithError(t *testing.T) {
 		WithAPIKey(""),
 	)
 
-	resp, res, err := c.Subscriptions.Update(context.Background(), &UpdateSubscriptionRequest{})
+	resp, res, err := c.Subscriptions.Update(context.Background(), &UpdateSubscriptionRequest{
+		SubscriptionID: "1",
+	})
 
 	a.Error(err)
 	a.Nil(resp)

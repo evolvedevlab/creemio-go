@@ -8,20 +8,9 @@ import (
 	"time"
 )
 
-type CheckoutCreateRequest struct {
-	RequestID    string                `json:"request_id"`
-	ProductID    string                `json:"product_id"`
-	Units        int                   `json:"units"`
-	DiscountCode string                `json:"discount_code,omitempty"`
-	Customer     *CheckoutCustomer     `json:"customer,omitempty"`
-	CustomField  []CheckoutCustomField `json:"custom_field,omitempty"`
-	SuccessURL   string                `json:"success_url"`
-	Metadata     map[string]any        `json:"metadata,omitempty"`
-}
-
 type CheckoutCustomer struct {
-	ID    string `json:"id"`
-	Email string `json:"email"`
+	ID    string `json:"id,omitempty"`
+	Email string `json:"email,omitempty"`
 }
 
 type CheckoutCustomField struct {
@@ -43,7 +32,7 @@ type CheckoutResponse struct {
 	Object       string                `json:"object"`
 	Status       string                `json:"status"`
 	RequestID    string                `json:"request_id"`
-	Product      string                `json:"product"`
+	Product      ProductOrID           `json:"product"`
 	Units        int                   `json:"units"`
 	Order        *CheckoutOrder        `json:"order"`
 	Subscription string                `json:"subscription"`
@@ -53,6 +42,26 @@ type CheckoutResponse struct {
 	SuccessURL   string                `json:"success_url"`
 	Feature      []CheckoutFeature     `json:"feature"`
 	Metadata     map[string]any        `json:"metadata"`
+}
+
+type ProductOrID struct {
+	ID   string
+	Data *Product
+}
+
+func (p *ProductOrID) UnmarshalJSON(data []byte) error {
+	// If it's a string, treat it as product ID
+	if data[0] == '"' {
+		return json.Unmarshal(data, &p.ID)
+	}
+
+	// Otherwise, try to parse it as a Product object
+	var prod Product
+	if err := json.Unmarshal(data, &prod); err != nil {
+		return err
+	}
+	p.Data = &prod
+	return nil
 }
 
 type CheckoutOrder struct {
@@ -106,6 +115,18 @@ type LicenseInstance struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+// product_id is required
+type CheckoutCreateRequest struct {
+	RequestID    string                `json:"request_id,omitempty"`
+	ProductID    string                `json:"product_id"`
+	Units        int                   `json:"units,omitempty"`
+	DiscountCode string                `json:"discount_code,omitempty"`
+	Customer     *CheckoutCustomer     `json:"customer,omitempty"`
+	CustomField  []CheckoutCustomField `json:"custom_field,omitempty"`
+	SuccessURL   string                `json:"success_url,omitempty"`
+	Metadata     map[string]any        `json:"metadata,omitempty"`
+}
+
 type CheckoutService struct {
 	client *Client
 }
@@ -126,6 +147,9 @@ func (s *CheckoutService) Get(ctx context.Context, id string) (*CheckoutResponse
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
 		return nil, newResponse(res), err
+	}
+	if res.StatusCode >= 400 {
+		return nil, newResponse(res), newAPIError(res.Body)
 	}
 	defer res.Body.Close()
 
@@ -153,11 +177,15 @@ func (s *CheckoutService) Create(ctx context.Context, data *CheckoutCreateReques
 	if err != nil {
 		return nil, nil, err
 	}
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("x-api-key", s.client.apiKey)
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
 		return nil, newResponse(res), err
+	}
+	if res.StatusCode >= 400 {
+		return nil, newResponse(res), newAPIError(res.Body)
 	}
 	defer res.Body.Close()
 

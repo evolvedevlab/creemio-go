@@ -56,6 +56,9 @@ func (s *CustomerService) Get(ctx context.Context, query *CustomerRequestQuery) 
 	if err != nil {
 		return nil, newResponse(res), err
 	}
+	if res.StatusCode >= 400 {
+		return nil, newResponse(res), newAPIError(res.Body)
+	}
 	defer res.Body.Close()
 
 	var customer Customer
