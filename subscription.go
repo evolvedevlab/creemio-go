@@ -139,6 +139,7 @@ func (s *SubscriptionService) Get(ctx context.Context, id string) (*Subscription
 		return nil, nil, err
 	}
 	req.Header.Set("x-api-key", s.client.apiKey)
+	req.Header.Set("Content-Type", "application/json")
 
 	q := req.URL.Query()
 	q.Set("subscription_id", id)
@@ -148,10 +149,11 @@ func (s *SubscriptionService) Get(ctx context.Context, id string) (*Subscription
 	if err != nil {
 		return nil, newResponse(res), err
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode >= 400 {
 		return nil, newResponse(res), newAPIError(res.Body)
 	}
-	defer res.Body.Close()
 
 	var sub Subscription
 	if err := json.NewDecoder(res.Body).Decode(&sub); err != nil {
@@ -184,10 +186,11 @@ func (s *SubscriptionService) Update(ctx context.Context, data *UpdateSubscripti
 	if err != nil {
 		return nil, newResponse(res), err
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode >= 400 {
 		return nil, newResponse(res), newAPIError(res.Body)
 	}
-	defer res.Body.Close()
 
 	var sub Subscription
 	if err := json.NewDecoder(res.Body).Decode(&sub); err != nil {
@@ -211,10 +214,11 @@ func (s *SubscriptionService) Cancel(ctx context.Context, id string) (*Subscript
 	if err != nil {
 		return nil, newResponse(res), err
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode >= 400 {
 		return nil, newResponse(res), newAPIError(res.Body)
 	}
-	defer res.Body.Close()
 
 	var sub Subscription
 	if err := json.NewDecoder(res.Body).Decode(&sub); err != nil {

@@ -43,6 +43,7 @@ func (s *CustomerService) Get(ctx context.Context, query *CustomerRequestQuery) 
 		return nil, nil, err
 	}
 	req.Header.Set("x-api-key", s.client.apiKey)
+	req.Header.Set("Content-Type", "application/json")
 
 	q := req.URL.Query()
 	if len(query.ID) > 0 {
@@ -56,10 +57,11 @@ func (s *CustomerService) Get(ctx context.Context, query *CustomerRequestQuery) 
 	if err != nil {
 		return nil, newResponse(res), err
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode >= 400 {
 		return nil, newResponse(res), newAPIError(res.Body)
 	}
-	defer res.Body.Close()
 
 	var customer Customer
 	if err := json.NewDecoder(res.Body).Decode(&customer); err != nil {

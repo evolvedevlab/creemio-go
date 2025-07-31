@@ -119,6 +119,7 @@ func (s *CheckoutService) Get(ctx context.Context, id string) (*Checkout, *Respo
 		return nil, nil, err
 	}
 	req.Header.Set("x-api-key", s.client.apiKey)
+	req.Header.Set("Content-Type", "application/json")
 
 	q := req.URL.Query()
 	q.Set("checkout_id", id)
@@ -128,10 +129,11 @@ func (s *CheckoutService) Get(ctx context.Context, id string) (*Checkout, *Respo
 	if err != nil {
 		return nil, newResponse(res), err
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode >= 400 {
 		return nil, newResponse(res), newAPIError(res.Body)
 	}
-	defer res.Body.Close()
 
 	var checkout Checkout
 	if err := json.NewDecoder(res.Body).Decode(&checkout); err != nil {
@@ -164,10 +166,11 @@ func (s *CheckoutService) Create(ctx context.Context, data *CheckoutCreateReques
 	if err != nil {
 		return nil, newResponse(res), err
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode >= 400 {
 		return nil, newResponse(res), newAPIError(res.Body)
 	}
-	defer res.Body.Close()
 
 	var checkout Checkout
 	if err := json.NewDecoder(res.Body).Decode(&checkout); err != nil {
