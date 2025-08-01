@@ -34,11 +34,11 @@ func TestSubscriptions_Cancel(t *testing.T) {
 	a.Equal(fmt.Sprintf("/%s/subscriptions/%s/cancel", APIVersion, subID), res.RequestURL.RequestURI())
 	a.Equal(http.StatusOK, res.Status)
 
-	// Marshalling again for comparing expected json data with the received json data
-	rawJson, err := json.Marshal(resp)
+	var expectedSub Subscription
+	err = json.Unmarshal(mock.GetSubscriptionResponse(), &expectedSub)
 
 	a.NoError(err)
-	a.JSONEq(string(mock.GetSubscriptionResponse()), string(rawJson))
+	a.Equal(expectedSub, *resp)
 
 }
 
@@ -98,12 +98,11 @@ func TestSubscriptions_Update(t *testing.T) {
 	a.Equal(fmt.Sprintf("/%s/subscriptions/%s", APIVersion, subID), res.RequestURL.RequestURI())
 	a.Equal(http.StatusOK, res.Status)
 
-	// Marshalling again for comparing expected json data with the received json data
-	rawJson, err := json.Marshal(resp)
+	var expectedSub Subscription
+	err = json.Unmarshal(mock.GetSubscriptionResponse(), &expectedSub)
 
 	a.NoError(err)
-	a.JSONEq(string(mock.GetSubscriptionResponse()), string(rawJson))
-
+	a.Equal(expectedSub, *resp)
 }
 
 func TestSubscriptions_UpdateWithMissingSubscriptionID(t *testing.T) {
@@ -178,11 +177,11 @@ func TestSubscriptions_Get(t *testing.T) {
 	a.Equal(http.StatusOK, res.Status)
 	a.NotNil(resp)
 
-	// Marshalling again for comparing expected json data with the received json data
-	rawJson, err := json.Marshal(resp)
+	var expectedSub Subscription
+	err = json.Unmarshal(mock.GetSubscriptionResponse(), &expectedSub)
 
 	a.NoError(err)
-	a.JSONEq(string(mock.GetSubscriptionResponse()), string(rawJson))
+	a.Equal(expectedSub, *resp)
 }
 
 func TestSubscriptions_GetWithError(t *testing.T) {

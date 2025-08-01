@@ -103,13 +103,14 @@ type Subscription struct {
 	Items                  []SubscriptionItem `json:"items"`
 	CollectionMethod       string             `json:"collection_method"`
 	Status                 SubscriptionStatus `json:"status"`
-	LastTransactionID      string             `json:"last_transaction_id"`
+	LastTransactionID      *string            `json:"last_transaction_id"`
 	LastTransaction        *Transaction       `json:"last_transaction"`
-	LastTransactionDate    time.Time          `json:"last_transaction_date"`
-	NextTransactionDate    time.Time          `json:"next_transaction_date"`
-	CurrentPeriodStartDate time.Time          `json:"current_period_start_date"`
-	CurrentPeriodEndDate   time.Time          `json:"current_period_end_date"`
+	LastTransactionDate    *time.Time         `json:"last_transaction_date"`
+	NextTransactionDate    *time.Time         `json:"next_transaction_date"`
+	CurrentPeriodStartDate *time.Time         `json:"current_period_start_date"`
+	CurrentPeriodEndDate   *time.Time         `json:"current_period_end_date"`
 	CanceledAt             *time.Time         `json:"canceled_at"`
+	Metadata               map[string]any     `json:"metadata"`
 	CreatedAt              time.Time          `json:"created_at"`
 	UpdatedAt              time.Time          `json:"updated_at"`
 }

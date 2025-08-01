@@ -21,24 +21,31 @@ type WebHookRequest struct {
 }
 
 type WebHookCheckoutRequest struct {
-	ID        string       `json:"id"`
-	EventType WebHookEvent `json:"eventType"`
-	CreatedAt int64        `json:"created_at"`
-	Object    *Checkout    `json:"object"`
+	ID             string       `json:"id"`
+	EventType      WebHookEvent `json:"eventType"`
+	CreatedAt      int64        `json:"created_at"`
+	CheckoutObject Checkout     `json:"object"`
 }
 
 type WebHookSubscriptionRequest struct {
-	ID        string        `json:"id"`
-	EventType WebHookEvent  `json:"eventType"`
-	CreatedAt int64         `json:"created_at"`
-	Object    *Subscription `json:"object"`
+	ID                 string       `json:"id"`
+	EventType          WebHookEvent `json:"eventType"`
+	CreatedAt          int64        `json:"created_at"`
+	SubscriptionObject Subscription `json:"object"`
 }
 
 type WebHookRefundRequest struct {
-	ID        string       `json:"id"`
-	EventType WebHookEvent `json:"eventType"`
-	CreatedAt int64        `json:"created_at"`
-	Object    *Refund      `json:"object"`
+	ID           string       `json:"id"`
+	EventType    WebHookEvent `json:"eventType"`
+	CreatedAt    int64        `json:"created_at"`
+	RefundObject Refund       `json:"object"`
+}
+
+type WebHookDisputeRequest struct {
+	ID            string       `json:"id"`
+	EventType     WebHookEvent `json:"eventType"`
+	CreatedAt     int64        `json:"created_at"`
+	DisputeObject Dispute      `json:"object"`
 }
 
 type Refund struct {
@@ -55,13 +62,6 @@ type Refund struct {
 	Customer       *Customer      `json:"customer"`
 	CreatedAt      int64          `json:"created_at"`
 	Mode           Mode           `json:"mode"`
-}
-
-type WebHookDisputeRequest struct {
-	ID        string       `json:"id"`
-	EventType WebHookEvent `json:"eventType"`
-	CreatedAt int64        `json:"created_at"`
-	Object    *Dispute     `json:"object"`
 }
 
 type Dispute struct {
