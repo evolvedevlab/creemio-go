@@ -10,15 +10,32 @@ import (
 
 var errCustomerNoQuery = errors.New("either customer_id or email is required")
 
+// Subscription is either a full object or just an ID string depending on the API context.
 type Customer struct {
 	ID        string    `json:"id"`
-	Mode      string    `json:"mode"`
+	Mode      Mode      `json:"mode"`
 	Object    string    `json:"object"`
 	Email     string    `json:"email"`
 	Name      string    `json:"name"`
 	Country   string    `json:"country"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func (c *Customer) UnmarshalJSON(data []byte) error {
+	// If it's a string, treat it as customer ID
+	if len(data) > 0 && data[0] == '"' {
+		return json.Unmarshal(data, &c.ID)
+	}
+
+	// Otherwise, try to parse it as a full Customer object
+	type alias Customer // avoid recursion
+	var tmp alias
+	if err := json.Unmarshal(data, &tmp); err != nil {
+		return err
+	}
+	*c = Customer(tmp)
+	return nil
 }
 
 // Either ID or Email should be present

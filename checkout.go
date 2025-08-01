@@ -28,15 +28,15 @@ type CheckoutTextSpec struct {
 
 type Checkout struct {
 	ID           string                `json:"id"`
-	Mode         string                `json:"mode"`
+	Mode         Mode                  `json:"mode"`
 	Object       string                `json:"object"`
 	Status       string                `json:"status"`
 	RequestID    string                `json:"request_id"`
 	Product      *Product              `json:"product"`
 	Units        int                   `json:"units"`
 	Order        *CheckoutOrder        `json:"order"`
-	Subscription string                `json:"subscription"`
-	Customer     string                `json:"customer"`
+	Subscription *Subscription         `json:"subscription"`
+	Customer     *Customer             `json:"customer"`
 	CustomFields []CheckoutCustomField `json:"custom_fields"`
 	CheckoutURL  string                `json:"checkout_url"`
 	SuccessURL   string                `json:"success_url"`
@@ -46,7 +46,7 @@ type Checkout struct {
 
 type CheckoutOrder struct {
 	ID             string    `json:"id"`
-	Mode           string    `json:"mode"`
+	Mode           Mode      `json:"mode"`
 	Object         string    `json:"object"`
 	Customer       string    `json:"customer"`
 	Product        string    `json:"product"`
@@ -75,7 +75,7 @@ type CheckoutFeature struct {
 
 type License struct {
 	ID              string           `json:"id"`
-	Mode            string           `json:"mode"`
+	Mode            Mode             `json:"mode"`
 	Object          string           `json:"object"`
 	Status          string           `json:"status"`
 	Key             string           `json:"key"`
@@ -88,7 +88,7 @@ type License struct {
 
 type LicenseInstance struct {
 	ID        string    `json:"id"`
-	Mode      string    `json:"mode"`
+	Mode      Mode      `json:"mode"`
 	Object    string    `json:"object"`
 	Name      string    `json:"name"`
 	Status    string    `json:"status"`

@@ -14,9 +14,10 @@ type Feature struct {
 	Description string `json:"description"`
 }
 
+// Product is either a full object or just an ID string depending on the API context.
 type Product struct {
 	ID                string    `json:"id"`
-	Mode              string    `json:"mode"`
+	Mode              Mode      `json:"mode"`
 	Object            string    `json:"object"`
 	Name              string    `json:"name"`
 	Description       string    `json:"description"`
@@ -53,7 +54,7 @@ func (p *Product) UnmarshalJSON(data []byte) error {
 
 type SubscriptionItem struct {
 	ID        string `json:"id"`
-	Mode      string `json:"mode,omitempty"`
+	Mode      Mode   `json:"mode,omitempty"`
 	Object    string `json:"object,omitempty"`
 	ProductID string `json:"product_id"`
 	PriceID   string `json:"price_id"`
@@ -62,7 +63,7 @@ type SubscriptionItem struct {
 
 type Transaction struct {
 	ID             string `json:"id"`
-	Mode           string `json:"mode"`
+	Mode           Mode   `json:"mode"`
 	Object         string `json:"object"`
 	Amount         int    `json:"amount"`
 	AmountPaid     int    `json:"amount_paid"`
@@ -92,17 +93,18 @@ const (
 	SubscriptionStatusTrialing SubscriptionStatus = "trialing"
 )
 
+// Subscription is either a full object or just an ID string depending on the API context.
 type Subscription struct {
 	ID                     string             `json:"id"`
-	Mode                   string             `json:"mode"`
+	Mode                   Mode               `json:"mode"`
 	Object                 string             `json:"object"`
-	Product                Product            `json:"product"`
-	Customer               Customer           `json:"customer"`
+	Product                *Product           `json:"product"`
+	Customer               *Customer          `json:"customer"`
 	Items                  []SubscriptionItem `json:"items"`
 	CollectionMethod       string             `json:"collection_method"`
 	Status                 SubscriptionStatus `json:"status"`
 	LastTransactionID      string             `json:"last_transaction_id"`
-	LastTransaction        Transaction        `json:"last_transaction"`
+	LastTransaction        *Transaction       `json:"last_transaction"`
 	LastTransactionDate    time.Time          `json:"last_transaction_date"`
 	NextTransactionDate    time.Time          `json:"next_transaction_date"`
 	CurrentPeriodStartDate time.Time          `json:"current_period_start_date"`
@@ -110,6 +112,22 @@ type Subscription struct {
 	CanceledAt             *time.Time         `json:"canceled_at"`
 	CreatedAt              time.Time          `json:"created_at"`
 	UpdatedAt              time.Time          `json:"updated_at"`
+}
+
+func (s *Subscription) UnmarshalJSON(data []byte) error {
+	// If it's a string, treat it as product ID
+	if len(data) > 0 && data[0] == '"' {
+		return json.Unmarshal(data, &s.ID)
+	}
+
+	// Otherwise, try to parse it as a full Subscription object
+	type alias Subscription // avoid recursion
+	var tmp alias
+	if err := json.Unmarshal(data, &tmp); err != nil {
+		return err
+	}
+	*s = Subscription(tmp)
+	return nil
 }
 
 type SubscriptionUpdateBehavior string
