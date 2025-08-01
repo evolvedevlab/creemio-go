@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/evolvedevlab/creemio-go/mock"
@@ -92,6 +93,67 @@ func TestCustomers_GetWithError(t *testing.T) {
 
 	a.Error(err)
 	a.Nil(resp)
+	a.NotNil(res)
+	a.Equal(http.StatusInternalServerError, res.Status)
+}
+
+func TestCustomers_GetBillingPortalURL(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(mock.HandleGetBillingPortalURL(false)))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	resp, res, err := c.Customers.GetBillingPortalURL(context.Background(), "1")
+
+	a.NoError(err)
+	a.True(strings.HasPrefix(resp, "https://creem.io/my-orders/login/"))
+	a.NotNil(res)
+	a.Equal(http.StatusOK, res.Status)
+}
+
+func TestCustomers_GetBillingPortalURL_WithInvalidLink(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(mock.HandleGetBillingPortalURL(true)))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	resp, res, err := c.Customers.GetBillingPortalURL(context.Background(), "1")
+
+	a.EqualError(errInvalidCustomerPortalLink, err.Error())
+	a.Empty(resp)
+	a.NotNil(res)
+}
+
+func TestCustomers_GetBillingPortalURL_WithError(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	resp, res, err := c.Customers.GetBillingPortalURL(context.Background(), "1")
+
+	a.Error(err)
+	a.Empty(resp)
 	a.NotNil(res)
 	a.Equal(http.StatusInternalServerError, res.Status)
 }

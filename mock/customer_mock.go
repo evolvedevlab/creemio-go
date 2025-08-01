@@ -7,6 +7,17 @@ func HandleGetCustomer(w http.ResponseWriter, r *http.Request) {
 	w.Write(GetCustomerResponse())
 }
 
+func HandleGetBillingPortalURL(invalidLink bool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		if invalidLink {
+			w.Write([]byte(`{"customer_portal_link": "https://edev.com/my-orders/login/xxxxxxxxxx"}`))
+			return
+		}
+		w.Write([]byte(`{"customer_portal_link": "https://creem.io/my-orders/login/xxxxxxxxxx"}`))
+	}
+}
+
 func GetCustomerResponse() []byte {
 	return []byte(`{
   "id": "cus_abc123",
