@@ -101,7 +101,7 @@ func TestCustomers_GetBillingPortalURL(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	s := httptest.NewServer(http.HandlerFunc(mock.HandleGetBillingPortalURL(false)))
+	s := httptest.NewServer(http.HandlerFunc(mock.HandleGetBillingPortalURL))
 	defer s.Close()
 
 	c := New(
@@ -115,25 +115,6 @@ func TestCustomers_GetBillingPortalURL(t *testing.T) {
 	a.True(strings.HasPrefix(resp, "https://creem.io/my-orders/login/"))
 	a.NotNil(res)
 	a.Equal(http.StatusOK, res.Status)
-}
-
-func TestCustomers_GetBillingPortalURL_WithInvalidLink(t *testing.T) {
-	t.Parallel()
-	a := assert.New(t)
-
-	s := httptest.NewServer(http.HandlerFunc(mock.HandleGetBillingPortalURL(true)))
-	defer s.Close()
-
-	c := New(
-		WithBaseURL(s.URL),
-		WithAPIKey(""),
-	)
-
-	resp, res, err := c.Customers.GetBillingPortalURL(context.Background(), "1")
-
-	a.EqualError(errInvalidCustomerPortalLink, err.Error())
-	a.Empty(resp)
-	a.NotNil(res)
 }
 
 func TestCustomers_GetBillingPortalURL_WithError(t *testing.T) {

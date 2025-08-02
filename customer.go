@@ -6,14 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"strings"
 	"time"
 )
 
-var (
-	errCustomerNoQuery           = errors.New("either customer_id or email is required")
-	errInvalidCustomerPortalLink = errors.New("invalid customer portal link")
-)
+var errCustomerNoQuery = errors.New("either customer_id or email is required")
 
 // Subscription is either a full object or just an ID string depending on the API context.
 type Customer struct {
@@ -127,11 +123,6 @@ func (s *CustomerService) GetBillingPortalURL(ctx context.Context, customerID st
 	var resp customerPortalResponse
 	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
 		return "", newResponse(res), err
-	}
-
-	link := resp.CustomerPortalLink
-	if len(link) == 0 || !strings.HasPrefix(link, "https://creem.io/my-orders/login/") {
-		return "", newResponse(res), errInvalidCustomerPortalLink
 	}
 
 	return resp.CustomerPortalLink, newResponse(res), nil
