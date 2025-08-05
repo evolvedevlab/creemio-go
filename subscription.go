@@ -146,6 +146,12 @@ type UpdateSubscriptionRequest struct {
 	UpdateBehavior SubscriptionUpdateBehavior `json:"update_behavior,omitempty"`
 }
 
+type UpgradeSubscriptionRequest struct {
+	SubscriptionID string                     `json:"-"`
+	ProductID      string                     `json:"product_id"`
+	UpdateBehavior SubscriptionUpdateBehavior `json:"update_behavior"`
+}
+
 type SubscriptionService struct {
 	client *Client
 }
@@ -247,4 +253,39 @@ func (s *SubscriptionService) Cancel(ctx context.Context, id string) (*Subscript
 	return &sub, newResponse(res), nil
 }
 
-// TODO: Upgrade()
+func (s *SubscriptionService) Upgrade(ctx context.Context, data *UpgradeSubscriptionRequest) (*Subscription, *Response, error) {
+	if len(data.SubscriptionID) == 0 {
+		return nil, nil, errRequiredFieldSubscriptionID
+	}
+
+	targetUrl := makeUrl(s.client.baseURL, "/subscriptions", data.SubscriptionID, "upgrade")
+
+	payload, err := json.Marshal(data)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetUrl, bytes.NewReader(payload))
+	if err != nil {
+		return nil, nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-api-key", s.client.apiKey)
+
+	res, err := s.client.httpClient.Do(req)
+	if err != nil {
+		return nil, newResponse(res), err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode >= 400 {
+		return nil, newResponse(res), newAPIError(res.Body)
+	}
+
+	var sub Subscription
+	if err := json.NewDecoder(res.Body).Decode(&sub); err != nil {
+		return nil, newResponse(res), err
+	}
+
+	return &sub, newResponse(res), nil
+}

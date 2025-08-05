@@ -13,6 +13,88 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestSubscriptions_Upgrade(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(mock.HandlePostUpgradeSubscription))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	subID := "sub_123"
+	resp, res, err := c.Subscriptions.Upgrade(context.Background(), &UpgradeSubscriptionRequest{
+		SubscriptionID: subID,
+		ProductID:      "prod_123",
+		UpdateBehavior: ProrationCharge,
+	})
+
+	a.NoError(err)
+	a.NotNil(resp)
+	a.NotNil(res)
+	a.Equal(fmt.Sprintf("/%s/subscriptions/%s/upgrade", APIVersion, subID), res.RequestURL.RequestURI())
+	a.Equal(http.StatusOK, res.Status)
+
+	var expectedSub Subscription
+	err = json.Unmarshal(mock.GetSubscriptionResponse(), &expectedSub)
+
+	a.NoError(err)
+	a.Equal(expectedSub, *resp)
+}
+
+func TestSubscriptions_UpgradeWithMissingSubscriptionID(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(mock.HandlePostUpgradeSubscription))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	resp, res, err := c.Subscriptions.Upgrade(context.Background(), &UpgradeSubscriptionRequest{
+		// SubscriptionID: "1", // missing
+		ProductID:      "prod_123",
+		UpdateBehavior: ProrationCharge,
+	})
+
+	a.Error(err)
+	a.EqualError(err, errRequiredFieldSubscriptionID.Error())
+	a.Nil(resp)
+	a.Nil(res)
+}
+
+func TestSubscriptions_UpgradeWithError(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	resp, res, err := c.Subscriptions.Upgrade(context.Background(), &UpgradeSubscriptionRequest{
+		SubscriptionID: "1",
+		ProductID:      "prod_123",
+		UpdateBehavior: ProrationCharge,
+	})
+
+	a.Error(err)
+	a.Nil(resp)
+	a.NotNil(res)
+	a.Equal(http.StatusInternalServerError, res.Status)
+}
+
 func TestSubscriptions_Cancel(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)

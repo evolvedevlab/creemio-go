@@ -133,6 +133,7 @@ This implementation is same as the [JS version in the official docs](https://doc
   - `POST /v1/checkouts`
 - **Customers**
   - `GET /v1/customers`
+  - `GET /v1/customers/billing`
 - **Subscriptions**
   - `GET /v1/subscriptions`
   - `POST /v1/subscriptions/{id}`

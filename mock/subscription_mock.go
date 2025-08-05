@@ -2,6 +2,11 @@ package mock
 
 import "net/http"
 
+func HandlePostUpgradeSubscription(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write(GetSubscriptionResponse())
+}
+
 func HandlePostCancelSubscription(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(GetSubscriptionResponse())
