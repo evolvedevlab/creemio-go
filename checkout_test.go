@@ -43,13 +43,13 @@ func TestCheckouts_Create(t *testing.T) {
 			ID:    expectedCustomerID,
 			Email: "paul@gmail.com",
 		},
-		CustomField: []CheckoutCustomField{
+		CustomField: []CustomField{
 			{
 				Type:     "text",
 				Key:      "key",
 				Label:    "Enter Key",
 				Optional: true,
-				Text: &CheckoutTextSpec{
+				Text: &TextSpec{
 					MaxLength: 10,
 					MinLength: 12,
 				},

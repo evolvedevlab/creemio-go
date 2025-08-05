@@ -14,44 +14,6 @@ type Feature struct {
 	Description string `json:"description"`
 }
 
-// Product is either a full object or just an ID string depending on the API context.
-type Product struct {
-	ID                string    `json:"id"`
-	Mode              Mode      `json:"mode"`
-	Object            string    `json:"object"`
-	Name              string    `json:"name"`
-	Description       string    `json:"description"`
-	ImageURL          string    `json:"image_url"`
-	Features          []Feature `json:"features"`
-	Price             int       `json:"price"`
-	Currency          string    `json:"currency"`
-	BillingType       string    `json:"billing_type"`
-	BillingPeriod     string    `json:"billing_period"`
-	Status            string    `json:"status"`
-	TaxMode           string    `json:"tax_mode"`
-	TaxCategory       string    `json:"tax_category"`
-	ProductURL        string    `json:"product_url"`
-	DefaultSuccessURL string    `json:"default_success_url"`
-	CreatedAt         time.Time `json:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
-}
-
-func (p *Product) UnmarshalJSON(data []byte) error {
-	// If it's a string, treat it as product ID
-	if len(data) > 0 && data[0] == '"' {
-		return json.Unmarshal(data, &p.ID)
-	}
-
-	// Otherwise, try to parse it as a full Product object
-	type alias Product // avoid recursion
-	var tmp alias
-	if err := json.Unmarshal(data, &tmp); err != nil {
-		return err
-	}
-	*p = Product(tmp)
-	return nil
-}
-
 type SubscriptionItem struct {
 	ID        string `json:"id"`
 	Mode      Mode   `json:"mode,omitempty"`
@@ -59,28 +21,6 @@ type SubscriptionItem struct {
 	ProductID string `json:"product_id"`
 	PriceID   string `json:"price_id"`
 	Units     int    `json:"units"`
-}
-
-type Transaction struct {
-	ID             string `json:"id"`
-	Mode           Mode   `json:"mode"`
-	Object         string `json:"object"`
-	Amount         int    `json:"amount"`
-	AmountPaid     int    `json:"amount_paid"`
-	DiscountAmount int    `json:"discount_amount"`
-	Currency       string `json:"currency"`
-	Type           string `json:"type"`
-	TaxCountry     string `json:"tax_country"`
-	TaxAmount      int    `json:"tax_amount"`
-	Status         string `json:"status"`
-	RefundedAmount int    `json:"refunded_amount"`
-	Order          string `json:"order"`
-	Subscription   string `json:"subscription"`
-	Customer       string `json:"customer"`
-	Description    string `json:"description"`
-	PeriodStart    int    `json:"period_start"`
-	PeriodEnd      int    `json:"period_end"`
-	CreatedAt      int    `json:"created_at"`
 }
 
 type SubscriptionStatus string

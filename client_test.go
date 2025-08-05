@@ -22,6 +22,8 @@ func TestNewClient_Defaults(t *testing.T) {
 	a.NotNil(c.Checkouts)
 	a.NotNil(c.Customers)
 	a.NotNil(c.Subscriptions)
+	a.NotNil(c.Transactions)
+	a.NotNil(c.Products)
 }
 
 func TestNewClient_WithAPIKey(t *testing.T) {

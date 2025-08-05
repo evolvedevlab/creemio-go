@@ -13,35 +13,22 @@ type CheckoutCustomer struct {
 	Email string `json:"email,omitempty"`
 }
 
-type CheckoutCustomField struct {
-	Type     string            `json:"type"`
-	Key      string            `json:"key"`
-	Label    string            `json:"label"`
-	Optional bool              `json:"optional"`
-	Text     *CheckoutTextSpec `json:"text,omitempty"`
-}
-
-type CheckoutTextSpec struct {
-	MaxLength int `json:"max_length"`
-	MinLength int `json:"min_length"`
-}
-
 type Checkout struct {
-	ID           string                `json:"id"`
-	Mode         Mode                  `json:"mode"`
-	Object       string                `json:"object"`
-	Status       string                `json:"status"`
-	RequestID    string                `json:"request_id"`
-	Product      *Product              `json:"product"`
-	Units        int                   `json:"units"`
-	Order        *CheckoutOrder        `json:"order"`
-	Subscription *Subscription         `json:"subscription"`
-	Customer     *Customer             `json:"customer"`
-	CustomFields []CheckoutCustomField `json:"custom_fields"`
-	CheckoutURL  string                `json:"checkout_url"`
-	SuccessURL   string                `json:"success_url"`
-	Feature      []CheckoutFeature     `json:"feature"`
-	Metadata     map[string]any        `json:"metadata"`
+	ID           string            `json:"id"`
+	Mode         Mode              `json:"mode"`
+	Object       string            `json:"object"`
+	Status       string            `json:"status"`
+	RequestID    string            `json:"request_id"`
+	Product      *Product          `json:"product"`
+	Units        int               `json:"units"`
+	Order        *CheckoutOrder    `json:"order"`
+	Subscription *Subscription     `json:"subscription"`
+	Customer     *Customer         `json:"customer"`
+	CustomFields []CustomField     `json:"custom_fields"`
+	CheckoutURL  string            `json:"checkout_url"`
+	SuccessURL   string            `json:"success_url"`
+	Feature      []CheckoutFeature `json:"feature"`
+	Metadata     map[string]any    `json:"metadata"`
 }
 
 type CheckoutOrder struct {
@@ -97,14 +84,14 @@ type LicenseInstance struct {
 
 // product_id is required
 type CheckoutCreateRequest struct {
-	RequestID    string                `json:"request_id,omitempty"`
-	ProductID    string                `json:"product_id"`
-	Units        int                   `json:"units,omitempty"`
-	DiscountCode string                `json:"discount_code,omitempty"`
-	Customer     *CheckoutCustomer     `json:"customer,omitempty"`
-	CustomField  []CheckoutCustomField `json:"custom_field,omitempty"`
-	SuccessURL   string                `json:"success_url,omitempty"`
-	Metadata     map[string]any        `json:"metadata,omitempty"`
+	RequestID    string            `json:"request_id,omitempty"`
+	ProductID    string            `json:"product_id"`
+	Units        int               `json:"units,omitempty"`
+	DiscountCode string            `json:"discount_code,omitempty"`
+	Customer     *CheckoutCustomer `json:"customer,omitempty"`
+	CustomField  []CustomField     `json:"custom_field,omitempty"`
+	SuccessURL   string            `json:"success_url,omitempty"`
+	Metadata     map[string]any    `json:"metadata,omitempty"`
 }
 
 type CheckoutService struct {
