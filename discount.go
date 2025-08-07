@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 )
 
 var errDiscountNoQuery = errors.New("either discount_id or discount_code must be present")
@@ -45,7 +46,7 @@ type Discount struct {
 	Amount            int              `json:"amount,omitempty"`
 	Currency          string           `json:"currency,omitempty"`
 	Percentage        int              `json:"percentage,omitempty"`
-	ExpiryDate        string           `json:"expiry_date,omitempty"`
+	ExpiryDate        *time.Time       `json:"expiry_date,omitempty"`
 	MaxRedemptions    int              `json:"max_redemptions,omitempty"`
 	Duration          DiscountDuration `json:"duration"`
 	DurationInMonths  int              `json:"duration_in_months,omitempty"`
@@ -61,7 +62,7 @@ type CreateDiscountRequest struct {
 	Amount            int              `json:"amount,omitempty"`
 	Currency          string           `json:"currency,omitempty"`
 	Percentage        int              `json:"percentage,omitempty"`
-	ExpiryDate        string           `json:"expiry_date,omitempty"`
+	ExpiryDate        *time.Time       `json:"expiry_date,omitempty"`
 	MaxRedemptions    int              `json:"max_redemptions,omitempty"`
 	DurationInMonths  int              `json:"duration_in_months,omitempty"`
 }
