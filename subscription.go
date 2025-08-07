@@ -89,7 +89,7 @@ type UpdateSubscriptionRequest struct {
 type UpgradeSubscriptionRequest struct {
 	SubscriptionID string                     `json:"-"`
 	ProductID      string                     `json:"product_id"`
-	UpdateBehavior SubscriptionUpdateBehavior `json:"update_behavior"`
+	UpdateBehavior SubscriptionUpdateBehavior `json:"update_behavior,omitempty"`
 }
 
 type SubscriptionService struct {

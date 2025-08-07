@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	errRequiredMissingField        = errors.New("missing required fields")
 	errRequiredFieldProductID      = errors.New("product_id is required")
 	errRequiredFieldSubscriptionID = errors.New("subscription_id is required")
 )

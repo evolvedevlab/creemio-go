@@ -10,26 +10,33 @@ import (
 	"time"
 )
 
+type BillingType string
+
+const (
+	BillingTypeRecurring BillingType = "recurring"
+	BillingTypeOneTime   BillingType = "onetime"
+)
+
 // Product is either a full object or just an ID string depending on the API context.
 type Product struct {
-	ID                string    `json:"id"`
-	Mode              Mode      `json:"mode"`
-	Object            string    `json:"object"`
-	Name              string    `json:"name"`
-	Description       string    `json:"description"`
-	ImageURL          string    `json:"image_url"`
-	Features          []Feature `json:"features"`
-	Price             int       `json:"price"`
-	Currency          string    `json:"currency"`
-	BillingType       string    `json:"billing_type"`
-	BillingPeriod     string    `json:"billing_period"`
-	Status            string    `json:"status"`
-	TaxMode           string    `json:"tax_mode"`
-	TaxCategory       string    `json:"tax_category"`
-	ProductURL        string    `json:"product_url"`
-	DefaultSuccessURL string    `json:"default_success_url"`
-	CreatedAt         time.Time `json:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
+	ID                string      `json:"id"`
+	Mode              Mode        `json:"mode"`
+	Object            string      `json:"object"`
+	Name              string      `json:"name"`
+	Description       string      `json:"description"`
+	ImageURL          string      `json:"image_url"`
+	Features          []Feature   `json:"features"`
+	Price             int         `json:"price"`
+	Currency          string      `json:"currency"`
+	BillingType       BillingType `json:"billing_type"`
+	BillingPeriod     string      `json:"billing_period"`
+	Status            string      `json:"status"`
+	TaxMode           string      `json:"tax_mode"`
+	TaxCategory       string      `json:"tax_category"`
+	ProductURL        string      `json:"product_url"`
+	DefaultSuccessURL string      `json:"default_success_url"`
+	CreatedAt         time.Time   `json:"created_at"`
+	UpdatedAt         time.Time   `json:"updated_at"`
 }
 
 func (p *Product) UnmarshalJSON(data []byte) error {
@@ -50,11 +57,11 @@ func (p *Product) UnmarshalJSON(data []byte) error {
 
 type CreateProductRequest struct {
 	Name              string        `json:"name"`
-	Description       string        `json:"description,omitempty"`
+	Description       string        `json:"description"`
 	ImageURL          string        `json:"image_url,omitempty"`
 	Price             int           `json:"price"`
 	Currency          string        `json:"currency"`
-	BillingType       string        `json:"billing_type"`
+	BillingType       BillingType   `json:"billing_type"`
 	BillingPeriod     string        `json:"billing_period,omitempty"`
 	TaxMode           string        `json:"tax_mode,omitempty"`
 	TaxCategory       string        `json:"tax_category,omitempty"`
@@ -63,7 +70,7 @@ type CreateProductRequest struct {
 }
 
 type ProductList struct {
-	Items      []Product  `json:"product"`
+	Items      []Product  `json:"items"`
 	Pagination Pagination `json:"pagination"`
 }
 

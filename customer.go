@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-var errCustomerNoQuery = errors.New("either customer_id or email is required")
+var errCustomerNoQuery = errors.New("either customer_id or email must be present")
 
 // Subscription is either a full object or just an ID string depending on the API context.
 type Customer struct {
