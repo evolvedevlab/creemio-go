@@ -60,28 +60,6 @@ type CheckoutFeature struct {
 	License *License `json:"license"`
 }
 
-type License struct {
-	ID              string           `json:"id"`
-	Mode            Mode             `json:"mode"`
-	Object          string           `json:"object"`
-	Status          string           `json:"status"`
-	Key             string           `json:"key"`
-	Activation      int              `json:"activation"`
-	ActivationLimit int              `json:"activation_limit"`
-	ExpiresAt       time.Time        `json:"expires_at"`
-	CreatedAt       time.Time        `json:"created_at"`
-	Instance        *LicenseInstance `json:"instance"`
-}
-
-type LicenseInstance struct {
-	ID        string    `json:"id"`
-	Mode      Mode      `json:"mode"`
-	Object    string    `json:"object"`
-	Name      string    `json:"name"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
 // product_id is required
 type CheckoutCreateRequest struct {
 	RequestID    string            `json:"request_id,omitempty"`

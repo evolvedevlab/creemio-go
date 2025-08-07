@@ -21,6 +21,7 @@ type Client struct {
 	Transactions  *TransactionService
 	Products      *ProductService
 	Discounts     *DiscountService
+	Licenses      *LicenseService
 }
 
 type Option func(*Client)
@@ -41,6 +42,7 @@ func New(opts ...Option) *Client {
 	c.Transactions = &TransactionService{client: c}
 	c.Products = &ProductService{client: c}
 	c.Discounts = &DiscountService{client: c}
+	c.Licenses = &LicenseService{client: c}
 
 	return c
 }
