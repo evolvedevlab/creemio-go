@@ -129,15 +129,30 @@ This implementation is same as the [JS version in the official docs](https://doc
 ## Implemented
 
 - **Checkouts**
-  - `GET /v1/checkouts`
-  - `POST /v1/checkouts`
+  - `GET /v1/checkouts` - Get Checkout Session
+  - `POST /v1/checkouts` - Create Checkout Session
+- **Products**
+  - `POST /v1/products` - Create Product
+  - `GET /v1/products` - Get Product
+  - `GET /v1/products` - Get Products List
 - **Customers**
-  - `GET /v1/customers`
-  - `GET /v1/customers/billing`
+  - `GET /v1/customers` - Get Customer
+  - `GET /v1/customers/billing` - Get Customer Billing Portal Link
+- **Transactions**
+  - `GET /v1/transactions` - Get Transactions List
+- **Licenses**
+  - `POST /v1/licenses` - Validate License Key
+  - `POST /v1/licenses` - Activate License Key
+  - `POST /v1/licenses` - Deactivate License Key
+- **Discounts**
+  - `GET /v1/discounts` - Create Discount Code
+  - `POST /v1/discounts` - Create Discount Code
+  - `DELETE /v1/discounts` - Delete Discount Code
 - **Subscriptions**
-  - `GET /v1/subscriptions`
-  - `POST /v1/subscriptions/{id}`
-  - `POST /v1/subscriptions/{id}/cancel`
+  - `GET /v1/subscriptions` - Get Subscription
+  - `POST /v1/subscriptions/{id}` - Update Subscription
+  - `POST /v1/subscriptions/{id}` - Upgrade Subscription
+  - `POST /v1/subscriptions/{id}/cancel` - Cancel Subscription
 
 ## Issues
 
