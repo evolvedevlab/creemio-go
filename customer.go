@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"time"
 )
@@ -77,20 +78,24 @@ func (s *CustomerService) Get(ctx context.Context, query *CustomerRequestQuery) 
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, newResponse(res, nil), err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var customer Customer
-	if err := json.NewDecoder(res.Body).Decode(&customer); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &customer); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &customer, newResponse(res), nil
+	return &customer, newResponse(res, body), nil
 }
 
 // https://docs.creem.io/learn/customers/customer-portal#response
@@ -112,18 +117,22 @@ func (s *CustomerService) GetBillingPortalURL(ctx context.Context, customerID st
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return "", newResponse(res), err
+		return "", nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return "", newResponse(res), newAPIError(res.Body)
+		return "", newResponse(res, body), newAPIError(body)
 	}
 
 	var resp customerPortalResponse
-	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
-		return "", newResponse(res), err
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return "", newResponse(res, body), err
 	}
 
-	return resp.CustomerPortalLink, newResponse(res), nil
+	return resp.CustomerPortalLink, newResponse(res, body), nil
 }

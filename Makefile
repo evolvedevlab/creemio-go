@@ -1,10 +1,11 @@
 include .env
 
 test:
-	@API_KEY=$(API_KEY) go test -v ./...
+	@go test -v .
 
-test-usage:
-	@API_KEY=$(API_KEY) go run ./usage/...
+# Don't use this.
+test-e2e:
+	@API_KEY=$(API_KEY) go test -v ./e2e/...
 	
 echo:
 	@echo API_KEY=$(API_KEY)

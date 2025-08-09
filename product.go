@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"strconv"
 	"time"
@@ -117,20 +118,24 @@ func (s *ProductService) Create(ctx context.Context, data *CreateProductRequest)
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var product Product
-	if err := json.NewDecoder(res.Body).Decode(&product); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &product); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &product, newResponse(res), nil
+	return &product, newResponse(res, body), nil
 }
 
 func (s *ProductService) Get(ctx context.Context, id string) (*Product, *Response, error) {
@@ -149,20 +154,24 @@ func (s *ProductService) Get(ctx context.Context, id string) (*Product, *Respons
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var product Product
-	if err := json.NewDecoder(res.Body).Decode(&product); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &product); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &product, newResponse(res), nil
+	return &product, newResponse(res, body), nil
 }
 
 func (s *ProductService) List(ctx context.Context, query *ProductListQuery) (*ProductList, *Response, error) {
@@ -188,18 +197,22 @@ func (s *ProductService) List(ctx context.Context, query *ProductListQuery) (*Pr
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var result ProductList
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &result, newResponse(res), nil
+	return &result, newResponse(res, body), nil
 }

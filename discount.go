@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"time"
 )
@@ -101,20 +102,24 @@ func (s *DiscountService) Get(ctx context.Context, query *DiscountRequestQuery) 
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var discount Discount
-	if err := json.NewDecoder(res.Body).Decode(&discount); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &discount); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &discount, newResponse(res), nil
+	return &discount, newResponse(res, body), nil
 }
 
 func (s *DiscountService) Create(ctx context.Context, data *CreateDiscountRequest) (*Discount, *Response, error) {
@@ -138,20 +143,24 @@ func (s *DiscountService) Create(ctx context.Context, data *CreateDiscountReques
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var discount Discount
-	if err := json.NewDecoder(res.Body).Decode(&discount); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &discount); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &discount, newResponse(res), nil
+	return &discount, newResponse(res, body), nil
 }
 
 func (s *DiscountService) Delete(ctx context.Context, id string) (*Discount, *Response, error) {
@@ -166,18 +175,22 @@ func (s *DiscountService) Delete(ctx context.Context, id string) (*Discount, *Re
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var discount Discount
-	if err := json.NewDecoder(res.Body).Decode(&discount); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &discount); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &discount, newResponse(res), nil
+	return &discount, newResponse(res, body), nil
 }

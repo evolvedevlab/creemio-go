@@ -9,15 +9,14 @@ type Response struct {
 	RequestURL *url.URL
 	Status     int
 	Headers    http.Header
+	Body       []byte
 }
 
-func newResponse(res *http.Response) *Response {
-	if res == nil {
-		return nil
-	}
+func newResponse(r *http.Response, body []byte) *Response {
 	return &Response{
-		RequestURL: res.Request.URL,
-		Status:     res.StatusCode,
-		Headers:    res.Header,
+		RequestURL: r.Request.URL,
+		Status:     r.StatusCode,
+		Headers:    r.Header,
+		Body:       body,
 	}
 }

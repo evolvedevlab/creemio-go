@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"time"
 )
@@ -112,20 +113,24 @@ func (s *SubscriptionService) Get(ctx context.Context, id string) (*Subscription
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var sub Subscription
-	if err := json.NewDecoder(res.Body).Decode(&sub); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &sub); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &sub, newResponse(res), nil
+	return &sub, newResponse(res, body), nil
 }
 
 func (s *SubscriptionService) Update(ctx context.Context, data *UpdateSubscriptionRequest) (*Subscription, *Response, error) {
@@ -149,20 +154,24 @@ func (s *SubscriptionService) Update(ctx context.Context, data *UpdateSubscripti
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var sub Subscription
-	if err := json.NewDecoder(res.Body).Decode(&sub); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &sub); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &sub, newResponse(res), nil
+	return &sub, newResponse(res, body), nil
 }
 
 func (s *SubscriptionService) Cancel(ctx context.Context, id string) (*Subscription, *Response, error) {
@@ -177,20 +186,24 @@ func (s *SubscriptionService) Cancel(ctx context.Context, id string) (*Subscript
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var sub Subscription
-	if err := json.NewDecoder(res.Body).Decode(&sub); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &sub); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &sub, newResponse(res), nil
+	return &sub, newResponse(res, body), nil
 }
 
 func (s *SubscriptionService) Upgrade(ctx context.Context, data *UpgradeSubscriptionRequest) (*Subscription, *Response, error) {
@@ -214,18 +227,22 @@ func (s *SubscriptionService) Upgrade(ctx context.Context, data *UpgradeSubscrip
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var sub Subscription
-	if err := json.NewDecoder(res.Body).Decode(&sub); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &sub); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &sub, newResponse(res), nil
+	return &sub, newResponse(res, body), nil
 }

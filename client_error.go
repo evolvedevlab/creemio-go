@@ -3,7 +3,6 @@ package creemio
 import (
 	"encoding/json"
 	"errors"
-	"io"
 )
 
 var (
@@ -20,9 +19,9 @@ type APIError struct {
 	Message any    `json:"message"`
 }
 
-func newAPIError(src io.Reader) error {
+func newAPIError(data []byte) error {
 	var apiErr APIError
-	if err := json.NewDecoder(src).Decode(&apiErr); err != nil {
+	if err := json.Unmarshal(data, &apiErr); err != nil {
 		return err
 	}
 

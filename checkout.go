@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"time"
 )
@@ -92,20 +93,24 @@ func (s *CheckoutService) Get(ctx context.Context, id string) (*Checkout, *Respo
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var checkout Checkout
-	if err := json.NewDecoder(res.Body).Decode(&checkout); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &checkout); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &checkout, newResponse(res), nil
+	return &checkout, newResponse(res, body), nil
 }
 
 func (s *CheckoutService) Create(ctx context.Context, data *CheckoutCreateRequest) (*Checkout, *Response, error) {
@@ -129,18 +134,22 @@ func (s *CheckoutService) Create(ctx context.Context, data *CheckoutCreateReques
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var checkout Checkout
-	if err := json.NewDecoder(res.Body).Decode(&checkout); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &checkout); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &checkout, newResponse(res), nil
+	return &checkout, newResponse(res, body), nil
 }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"time"
 )
@@ -77,20 +78,24 @@ func (s *LicenseService) Activate(ctx context.Context, data *LicenseActivateRequ
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var license License
-	if err := json.NewDecoder(res.Body).Decode(&license); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &license); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &license, newResponse(res), nil
+	return &license, newResponse(res, body), nil
 }
 
 func (s *LicenseService) Deactivate(ctx context.Context, data *LicenseDeactivateRequest) (*License, *Response, error) {
@@ -114,20 +119,24 @@ func (s *LicenseService) Deactivate(ctx context.Context, data *LicenseDeactivate
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var license License
-	if err := json.NewDecoder(res.Body).Decode(&license); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &license); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &license, newResponse(res), nil
+	return &license, newResponse(res, body), nil
 }
 
 func (s *LicenseService) Validate(ctx context.Context, data *LicenseValidateRequest) (*License, *Response, error) {
@@ -151,18 +160,22 @@ func (s *LicenseService) Validate(ctx context.Context, data *LicenseValidateRequ
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var license License
-	if err := json.NewDecoder(res.Body).Decode(&license); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &license); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &license, newResponse(res), nil
+	return &license, newResponse(res, body), nil
 }

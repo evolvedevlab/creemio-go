@@ -3,6 +3,7 @@ package creemio
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
 )
@@ -78,18 +79,22 @@ func (s *TransactionService) List(ctx context.Context, query *TransactionListQue
 
 	res, err := s.client.httpClient.Do(req)
 	if err != nil {
-		return nil, newResponse(res), err
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
 	if res.StatusCode >= 400 {
-		return nil, newResponse(res), newAPIError(res.Body)
+		return nil, newResponse(res, body), newAPIError(body)
 	}
 
 	var result TransactionList
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		return nil, newResponse(res), err
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, newResponse(res, body), err
 	}
 
-	return &result, newResponse(res), nil
+	return &result, newResponse(res, body), nil
 }

@@ -8,7 +8,7 @@ func HandleGetCheckout(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandlePostCheckout(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	w.Write(GetCheckoutResponse())
 }
 
