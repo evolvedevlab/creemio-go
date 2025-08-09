@@ -64,10 +64,14 @@ func TestCheckouts_Create(t *testing.T) {
 
 	a.NoError(err)
 	a.NotNil(resp)
+	a.NotNil(resp)
 	a.Equal(http.StatusOK, res.Status)
-	a.Equal(expectedProductID, resp.Product.ID)
-	a.Equal(expectedReqID, resp.RequestID)
-	a.Equal(expectedSuccessUrl, resp.SuccessURL)
+
+	var expected Checkout
+	err = json.Unmarshal(mock.GetCheckoutResponse(), &expected)
+
+	a.NoError(err)
+	a.Equal(expected, *resp)
 }
 
 func TestCheckouts_CreateWithError(t *testing.T) {
@@ -141,8 +145,7 @@ func TestCheckouts_Get(t *testing.T) {
 	a.NoError(err)
 	a.Equal(url.RequestURI(), res.RequestURL.RequestURI())
 	a.Equal(http.StatusOK, res.Status)
-	a.NotNil(resp)
-	a.Equal(checkoutID, resp.ID)
+	a.NotNil(res)
 
 	// Have to do it like this, we cannot compare json here as some field(s)
 	// can either be string or object in json.

@@ -14,7 +14,7 @@ func HandlePostCheckout(w http.ResponseWriter, r *http.Request) {
 
 func GetCheckoutResponse() []byte {
 	return []byte(`{
-  "id": "1",
+  "id": "ch_1234567890",
   "mode": "test",
   "object": "checkout",
   "status": "pending",

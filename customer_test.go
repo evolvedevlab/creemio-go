@@ -46,11 +46,11 @@ func TestCustomers_Get(t *testing.T) {
 	a.NotNil(resp)
 	a.Equal(expectedEmail, resp.Email)
 
-	// Marshalling again for comparing expected json data with the received json data
-	rawJson, err := json.Marshal(resp)
+	var expected Customer
+	err = json.Unmarshal(mock.GetCustomerResponse(), &expected)
 
 	a.NoError(err)
-	a.JSONEq(string(mock.GetCustomerResponse()), string(rawJson))
+	a.Equal(expected, *resp)
 }
 
 func TestCustomers_GetWithMissingRequiredField(t *testing.T) {
