@@ -9,6 +9,13 @@ const (
 	ModeSandbox    Mode = "sandbox"
 )
 
+type Currency string
+
+const (
+	CurrencyEUR Currency = "EUR"
+	CurrencyUSD Currency = "USD"
+)
+
 type Pagination struct {
 	TotalRecords int  `json:"total_records"`
 	TotalPages   int  `json:"total_pages"`
