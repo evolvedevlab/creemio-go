@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -90,6 +91,73 @@ func TestCustomers_GetWithError(t *testing.T) {
 	resp, res, err := c.Customers.Get(context.Background(), &CustomerRequestQuery{
 		Email: "user@example.com",
 	})
+
+	a.Error(err)
+	a.Nil(resp)
+	a.NotNil(res)
+	a.Equal(http.StatusInternalServerError, res.Status)
+}
+
+func TestCustomers_List(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(mock.HandleGetCustomerList))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	// For comparing the url request url with search params
+	url, err := url.Parse(fmt.Sprintf("/%s/customers/list", APIVersion))
+	if err != nil {
+		panic(err)
+	}
+
+	var (
+		pageNum  = 1
+		pageSize = 2
+	)
+
+	q := url.Query()
+	q.Set("page_number", strconv.Itoa(pageNum))
+	q.Set("page_size", strconv.Itoa(pageSize))
+	url.RawQuery = q.Encode()
+
+	resp, res, err := c.Customers.List(context.Background(), &CustomerListQuery{
+		PageNumber: pageNum,
+		PageSize:   pageSize,
+	})
+
+	a.NoError(err)
+	a.Equal(url.RequestURI(), res.RequestURL.RequestURI())
+	a.Equal(http.StatusOK, res.Status)
+	a.NotNil(resp)
+
+	var expected CustomerList
+	err = json.Unmarshal(mock.GetCustomerListResponse(), &expected)
+
+	a.NoError(err)
+	a.Equal(expected, *resp)
+}
+
+func TestCustomers_ListWithError(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	resp, res, err := c.Customers.List(context.Background(), nil)
 
 	a.Error(err)
 	a.Nil(resp)

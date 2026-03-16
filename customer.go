@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -48,6 +49,16 @@ type customerPortalResponse struct {
 type CustomerRequestQuery struct {
 	ID    string
 	Email string
+}
+
+type CustomerList struct {
+	Items      []Customer `json:"items"`
+	Pagination Pagination `json:"pagination"`
+}
+
+type CustomerListQuery struct {
+	PageNumber int
+	PageSize   int
 }
 
 type CustomerService struct {
@@ -98,7 +109,49 @@ func (s *CustomerService) Get(ctx context.Context, query *CustomerRequestQuery) 
 	return &customer, newResponse(res, body), nil
 }
 
-// https://docs.creem.io/learn/customers/customer-portal#response
+func (s *CustomerService) List(ctx context.Context, query *CustomerListQuery) (*CustomerList, *Response, error) {
+	targetUrl := makeUrl(s.client.baseURL, "/customers", "list")
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetUrl, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	req.Header.Set("x-api-key", s.client.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	if query != nil {
+		q := req.URL.Query()
+		if query.PageNumber > 0 {
+			q.Set("page_number", strconv.Itoa(query.PageNumber))
+		}
+		if query.PageSize > 0 {
+			q.Set("page_size", strconv.Itoa(query.PageSize))
+		}
+		req.URL.RawQuery = q.Encode()
+	}
+
+	res, err := s.client.httpClient.Do(req)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
+	if res.StatusCode >= 400 {
+		return nil, newResponse(res, body), newAPIError(body)
+	}
+
+	var result CustomerList
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, newResponse(res, body), err
+	}
+
+	return &result, newResponse(res, body), nil
+}
+
 func (s *CustomerService) GetBillingPortalURL(ctx context.Context, customerID string) (string, *Response, error) {
 	targetUrl := makeUrl(s.client.baseURL, "/customers", "billing")
 
