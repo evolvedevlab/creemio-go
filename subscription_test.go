@@ -287,3 +287,103 @@ func TestSubscriptions_GetWithError(t *testing.T) {
 	a.NotNil(res)
 	a.Equal(http.StatusInternalServerError, res.Status)
 }
+
+func TestSubscriptions_Pause(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(mock.HandlePostPauseSubscription))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	subID := "1"
+	resp, res, err := c.Subscriptions.Pause(context.Background(), "1")
+
+	a.NoError(err)
+	a.NotNil(resp)
+	a.NotNil(res)
+	a.Equal(fmt.Sprintf("/%s/subscriptions/%s/pause", APIVersion, subID), res.RequestURL.RequestURI())
+	a.Equal(http.StatusOK, res.Status)
+
+	var expectedSub Subscription
+	err = json.Unmarshal(mock.GetSubscriptionResponse(), &expectedSub)
+
+	a.NoError(err)
+	a.Equal(expectedSub, *resp)
+}
+
+func TestSubscriptions_PauseWithError(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	resp, res, err := c.Subscriptions.Pause(context.Background(), "1")
+
+	a.Error(err)
+	a.Nil(resp)
+	a.NotNil(res)
+	a.Equal(http.StatusInternalServerError, res.Status)
+}
+
+func TestSubscriptions_Resume(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(mock.HandlePostResumeSubscription))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	subID := "1"
+	resp, res, err := c.Subscriptions.Resume(context.Background(), "1")
+
+	a.NoError(err)
+	a.NotNil(resp)
+	a.NotNil(res)
+	a.Equal(fmt.Sprintf("/%s/subscriptions/%s/resume", APIVersion, subID), res.RequestURL.RequestURI())
+	a.Equal(http.StatusOK, res.Status)
+
+	var expectedSub Subscription
+	err = json.Unmarshal(mock.GetSubscriptionResponse(), &expectedSub)
+
+	a.NoError(err)
+	a.Equal(expectedSub, *resp)
+}
+
+func TestSubscriptions_ResumeWithError(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	resp, res, err := c.Subscriptions.Resume(context.Background(), "1")
+
+	a.Error(err)
+	a.Nil(resp)
+	a.NotNil(res)
+	a.Equal(http.StatusInternalServerError, res.Status)
+}

@@ -246,3 +246,67 @@ func (s *SubscriptionService) Upgrade(ctx context.Context, data *UpgradeSubscrip
 
 	return &sub, newResponse(res, body), nil
 }
+
+func (s *SubscriptionService) Pause(ctx context.Context, id string) (*Subscription, *Response, error) {
+	targetUrl := makeUrl(s.client.baseURL, "/subscriptions", id, "pause")
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetUrl, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-api-key", s.client.apiKey)
+
+	res, err := s.client.httpClient.Do(req)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
+	if res.StatusCode >= 400 {
+		return nil, newResponse(res, body), newAPIError(body)
+	}
+
+	var sub Subscription
+	if err := json.Unmarshal(body, &sub); err != nil {
+		return nil, newResponse(res, body), err
+	}
+
+	return &sub, newResponse(res, body), nil
+}
+
+func (s *SubscriptionService) Resume(ctx context.Context, id string) (*Subscription, *Response, error) {
+	targetUrl := makeUrl(s.client.baseURL, "/subscriptions", id, "resume")
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetUrl, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-api-key", s.client.apiKey)
+
+	res, err := s.client.httpClient.Do(req)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
+	if res.StatusCode >= 400 {
+		return nil, newResponse(res, body), newAPIError(body)
+	}
+
+	var sub Subscription
+	if err := json.Unmarshal(body, &sub); err != nil {
+		return nil, newResponse(res, body), err
+	}
+
+	return &sub, newResponse(res, body), nil
+}

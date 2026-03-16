@@ -22,6 +22,16 @@ func HandleGetSubscription(w http.ResponseWriter, r *http.Request) {
 	w.Write(GetSubscriptionResponse())
 }
 
+func HandlePostPauseSubscription(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write(GetSubscriptionResponse())
+}
+
+func HandlePostResumeSubscription(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write(GetSubscriptionResponse())
+}
+
 func GetSubscriptionResponse() []byte {
 	return []byte(`{
   "id": "sub_abc123",
