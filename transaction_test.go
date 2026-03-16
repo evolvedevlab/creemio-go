@@ -18,7 +18,7 @@ func TestTransactions_List(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	s := httptest.NewServer(http.HandlerFunc(mock.HandleGetTransaction))
+	s := httptest.NewServer(http.HandlerFunc(mock.HandleGetTransactionList))
 	defer s.Close()
 
 	c := New(
@@ -62,7 +62,7 @@ func TestTransactions_List(t *testing.T) {
 	a.NotNil(resp)
 
 	var expected TransactionList
-	err = json.Unmarshal(mock.GetTransactionResponse(), &expected)
+	err = json.Unmarshal(mock.GetTransactionListResponse(), &expected)
 
 	a.NoError(err)
 	a.Equal(expected, *resp)
@@ -83,6 +83,64 @@ func TestTransactions_ListWithError(t *testing.T) {
 	)
 
 	resp, res, err := c.Transactions.List(context.Background(), nil)
+
+	a.Error(err)
+	a.Nil(resp)
+	a.NotNil(res)
+	a.Equal(http.StatusInternalServerError, res.Status)
+}
+
+func TestTransactions_Get(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(mock.HandleGetTransaction))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	tranID := "1"
+	// For comparing the url request url with search params
+	url, err := url.Parse(fmt.Sprintf("/%s/transactions", APIVersion))
+	if err != nil {
+		panic(err)
+	}
+	q := url.Query()
+	q.Set("transaction_id", tranID)
+	url.RawQuery = q.Encode()
+
+	resp, res, err := c.Transactions.Get(context.Background(), tranID)
+
+	a.NoError(err)
+	a.Equal(url.RequestURI(), res.RequestURL.RequestURI())
+	a.Equal(http.StatusOK, res.Status)
+	a.NotNil(resp)
+
+	var expected Transaction
+	err = json.Unmarshal(mock.GetTransactionResponse(), &expected)
+
+	a.NoError(err)
+	a.Equal(expected, *resp)
+}
+
+func TestTransaction_GetWithError(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer s.Close()
+
+	c := New(
+		WithBaseURL(s.URL),
+		WithAPIKey(""),
+	)
+
+	resp, res, err := c.Transactions.Get(context.Background(), "1")
 
 	a.Error(err)
 	a.Nil(resp)

@@ -47,6 +47,42 @@ type TransactionService struct {
 	client *Client
 }
 
+func (s *TransactionService) Get(ctx context.Context, id string) (*Transaction, *Response, error) {
+	targetUrl := makeUrl(s.client.baseURL, "/transactions")
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetUrl, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	req.Header.Set("x-api-key", s.client.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	q := req.URL.Query()
+	q.Set("transaction_id", id)
+	req.URL.RawQuery = q.Encode()
+
+	res, err := s.client.httpClient.Do(req)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, newResponse(res, body), err
+	}
+	if res.StatusCode >= 400 {
+		return nil, newResponse(res, body), newAPIError(body)
+	}
+
+	var transaction Transaction
+	if err := json.Unmarshal(body, &transaction); err != nil {
+		return nil, newResponse(res, body), err
+	}
+
+	return &transaction, newResponse(res, body), nil
+}
+
 func (s *TransactionService) List(ctx context.Context, query *TransactionListQuery) (*TransactionList, *Response, error) {
 	targetUrl := makeUrl(s.client.baseURL, "/transactions", "search")
 
