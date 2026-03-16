@@ -27,11 +27,12 @@ type SubscriptionItem struct {
 type SubscriptionStatus string
 
 const (
-	SubscriptionStatusActive   SubscriptionStatus = "active"
-	SubscriptionStatusCanceled SubscriptionStatus = "canceled"
-	SubscriptionStatusUnpaid   SubscriptionStatus = "unpaid"
-	SubscriptionStatusPaused   SubscriptionStatus = "paused"
-	SubscriptionStatusTrialing SubscriptionStatus = "trialing"
+	SubscriptionStatusActive          SubscriptionStatus = "active"
+	SubscriptionStatusCanceled        SubscriptionStatus = "canceled"
+	SubscriptionStatusUnpaid          SubscriptionStatus = "unpaid"
+	SubscriptionStatusPaused          SubscriptionStatus = "paused"
+	SubscriptionStatusTrialing        SubscriptionStatus = "trialing"
+	SubscriptionStatusScheduledCancel SubscriptionStatus = "scheduled_cancel"
 )
 
 // Subscription is either a full object or just an ID string depending on the API context.

@@ -92,3 +92,37 @@ func TestSubscriptions_Cancel(t *testing.T) {
 	a.NotNil(sub)
 	a.Equal(subID, sub.ID)
 }
+
+func TestSubscriptions_Pause(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	subID := "sub_7CfTcMaCgRTGVTJ1mb1ryQ"
+	sub, res, err := client.Subscriptions.Pause(context.Background(), subID)
+
+	a.NoError(err)
+
+	// http response
+	a.Equal(http.StatusOK, res.Status)
+
+	a.NotNil(sub)
+	a.Equal(subID, sub.ID)
+	a.Equal(creemio.SubscriptionStatusPaused, sub.Status)
+}
+
+func TestSubscriptions_Resume(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	subID := "sub_7CfTcMaCgRTGVTJ1mb1ryQ"
+	sub, res, err := client.Subscriptions.Resume(context.Background(), subID)
+
+	a.NoError(err)
+
+	// http response
+	a.Equal(http.StatusOK, res.Status)
+
+	a.NotNil(sub)
+	a.Equal(subID, sub.ID)
+	a.Equal(creemio.SubscriptionStatusActive, sub.Status)
+}

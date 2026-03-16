@@ -25,3 +25,19 @@ func TestTransactions_List(t *testing.T) {
 	a.Equal(len(results.Items), results.Pagination.TotalRecords)
 	a.NotEmpty(results.Pagination)
 }
+
+func TestTransactions_Get(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	tranID := "tran_29aHQHbaXfOZiZfpFcNNJ8"
+	transaction, res, err := client.Transactions.Get(context.Background(), tranID)
+
+	a.NoError(err)
+
+	// http response
+	a.Equal(http.StatusOK, res.Status)
+
+	a.NotNil(transaction)
+	a.Equal(tranID, transaction.ID)
+}

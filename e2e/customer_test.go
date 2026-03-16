@@ -27,6 +27,23 @@ func TestCustomers_Get(t *testing.T) {
 	a.Equal(email, customer.Email)
 }
 
+func TestCustomers_List(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	results, res, err := client.Customers.List(context.Background(), &creemio.CustomerListQuery{
+		PageSize: 100,
+	})
+	a.NoError(err)
+
+	// http response
+	a.Equal(http.StatusOK, res.Status)
+
+	a.GreaterOrEqual(len(results.Items), 1)
+	a.Equal(len(results.Items), results.Pagination.TotalRecords)
+	a.NotEmpty(results.Pagination)
+}
+
 func TestCustomers_GetBillingPortalURL(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
